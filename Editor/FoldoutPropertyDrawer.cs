@@ -8,22 +8,25 @@ namespace QuizAndPuzzle.Foldout
     [CustomPropertyDrawer(typeof(FoldoutAttribute))]
     public class FoldoutPropertyDrawer : PropertyDrawer
     {
-        private UnityEngine.UIElements.Foldout _foldout;
+        private Foldout _foldout;
+        private PropertyDrawer _editor;
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             VisualElement container = new VisualElement();
             FoldoutAttribute foldoutAttribute = (FoldoutAttribute)attribute;
-            _foldout ??= new UnityEngine.UIElements.Foldout
+            _foldout ??= new Foldout
             {
                 text = foldoutAttribute.Name
             };
-            
+            _foldout.Clear();
+
             Type propertyDrawer = EditorHelpers.GetPropertyDrawer(property.objectReferenceValue.GetType());
-            if(propertyDrawer != null)
+            if (propertyDrawer != null)
             {
-                PropertyDrawer editor = (PropertyDrawer)Activator.CreateInstance(propertyDrawer);
-                container.Add(editor.CreatePropertyGUI(property));
+                if (_editor == null)
+                    _editor = (PropertyDrawer)Activator.CreateInstance(propertyDrawer);
+                container.Add(_editor.CreatePropertyGUI(property));
             }
             else
             {
